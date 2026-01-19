@@ -10,4 +10,6 @@ export type SkillInput = {
     readme: string;
     createdAt: number;
     updatedAt: number;
+    confidence: number;
+    popularity: number;
   };
