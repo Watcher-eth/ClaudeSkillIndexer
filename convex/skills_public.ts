@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
+
 export const search = query({
     args: {
       q: v.string(),
@@ -9,19 +10,32 @@ export const search = query({
       category: v.optional(v.string()),
     },
     handler: async (ctx, { q, limit = 20, group, category }) => {
-      if (!q.trim()) return [];
+      const needle = q.trim().toLowerCase();
+      if (!needle) return [];
   
-      return ctx.db
-        .search("skills", "search_text", {
-          query: q,
-        })
-        .filter(qb =>
-          qb.and(
-            group ? qb.eq(qb.field("group"), group) : qb.true(),
-            category ? qb.eq(qb.field("category"), category) : qb.true()
+      let rows;
+  
+      if (group && category) {
+        rows = await ctx.db
+          .query("skills")
+          .withIndex("by_group_category_popularity", q =>
+            q.eq("group", group).eq("category", category)
           )
-        )
-        .take(limit);
+          .order("desc") // ✅ correct
+          .take(200);
+      } else {
+        rows = await ctx.db
+          .query("skills")
+          .order("desc") // creationTime desc fallback
+          .take(200);
+      }
+  
+      const filtered = rows.filter(r =>
+        r.name.toLowerCase().includes(needle) ||
+        r.description.toLowerCase().includes(needle)
+      );
+  
+      return filtered.slice(0, limit);
     },
   });
 
