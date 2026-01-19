@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { githubFetch } from "./github";
 import { parseSkillMarkdown } from "./parse";
 import { classify } from "./classify";
@@ -7,7 +8,7 @@ import { api } from "../convex/_generated/api";
 
 const client = new ConvexHttpClient(process.env.CONVEX_URL!);
 
-const MAX_PAGES = 10;
+const MAX_PAGES = 5;
 const PER_PAGE = 100;
 
 /* ---------------------------------- */
@@ -64,14 +65,14 @@ export async function crawlSkills(): Promise<SkillInput[]> {
 
         const updatedAt = safeDate(repo.updated_at);
 
-        // 🔁 Incremental check
-        const existing = await client.query(api.skills.getByRepo, {
-          repoUrl: repo.html_url,
-        });
+        // // 🔁 Incremental check
+        // const existing = await client.query(api.skills.getByRepo, {
+        //   repoUrl: repo.html_url,
+        // });
 
-        if (existing && existing.updatedAt >= updatedAt) {
-          continue;
-        }
+        // if (existing && existing.updatedAt >= updatedAt) {
+        //   continue;
+        // }
 
         const file = await githubFetch(item.url);
         if (!file?.content) continue;

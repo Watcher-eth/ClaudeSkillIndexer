@@ -10,8 +10,8 @@ export const upsert = mutation({
     stars: v.number(),
     group: v.string(),
     category: v.string(),
-    confidence: v.number(),     // ✅ ADD
-    popularity: v.number(),     // ✅ ADD
+    confidence: v.number(),
+    popularity: v.number(),
     tags: v.array(v.string()),
     readme: v.string(),
     createdAt: v.number(),
@@ -20,13 +20,20 @@ export const upsert = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("skills")
-      .withIndex("by_name", q => q.eq("name", args.name))
+      .withIndex("by_repo", q => q.eq("repoUrl", args.repoUrl))
       .first();
+
+    // ⛔ Skip unchanged
+    if (existing && existing.updatedAt >= args.updatedAt) {
+      return { skipped: true };
+    }
 
     if (existing) {
       await ctx.db.patch(existing._id, args);
+      return { updated: true };
     } else {
       await ctx.db.insert("skills", args);
+      return { inserted: true };
     }
   },
 });
@@ -34,7 +41,7 @@ export const upsert = mutation({
 export const getByRepo = query({
   args: { repoUrl: v.string() },
   handler: async (ctx, { repoUrl }) => {
-    return ctx.db
+    return await ctx.db
       .query("skills")
       .withIndex("by_repo", q => q.eq("repoUrl", repoUrl))
       .first();
