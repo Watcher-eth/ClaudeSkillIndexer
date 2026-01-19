@@ -12,6 +12,7 @@ import type * as crawler from "../crawler.js";
 import type * as crons from "../crons.js";
 import type * as indexer from "../indexer.js";
 import type * as skills from "../skills.js";
+import type * as skills_public from "../skills_public.js";
 
 import type {
   ApiFromModules,
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   indexer: typeof indexer;
   skills: typeof skills;
+  skills_public: typeof skills_public;
 }>;
 
 /**

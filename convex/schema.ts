@@ -1,3 +1,4 @@
+// convex/schema.ts
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
@@ -23,9 +24,23 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
+    // identity
     .index("by_skillKey", ["skillKey"])
+
+    // repo lookups (REQUIRED by getByRepo)
     .index("by_repo", ["repoUrl"])
-    .index("by_popularity", ["popularity"]),
+
+    // category browsing + ordering
+    .index(
+      "by_group_category_popularity",
+      ["group", "category", "popularity"]
+    )
+
+    // full-text search
+    .searchIndex("search_text", {
+      searchField: "name",
+      filterFields: ["group", "category"],
+    }),
 
   crawlState: defineTable({
     query: v.string(),
