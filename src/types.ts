@@ -12,4 +12,5 @@ export type SkillInput = {
     updatedAt: number;
     confidence: number;
     popularity: number;
+    skillKey: string;
   };

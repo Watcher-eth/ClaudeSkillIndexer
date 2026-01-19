@@ -8,6 +8,9 @@
  * @module
  */
 
+import type * as crawler from "../crawler.js";
+import type * as crons from "../crons.js";
+import type * as indexer from "../indexer.js";
 import type * as skills from "../skills.js";
 
 import type {
@@ -17,6 +20,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  crawler: typeof crawler;
+  crons: typeof crons;
+  indexer: typeof indexer;
   skills: typeof skills;
 }>;
 
