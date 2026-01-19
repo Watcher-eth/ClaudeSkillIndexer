@@ -13,6 +13,7 @@ async function main() {
 
   for (const skill of skills) {
     await client.mutation(api.skills.upsert, skill);
+    console.log("Inserted:", skill.name);
     indexed++;
     if (indexed % 25 === 0) {
       console.log(`Indexed ${indexed}/${skills.length}`);

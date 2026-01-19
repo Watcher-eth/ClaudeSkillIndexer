@@ -10,31 +10,23 @@ export const upsert = mutation({
     stars: v.number(),
     group: v.string(),
     category: v.string(),
-    confidence: v.number(),
+    confidence: v.number(),     // ✅ ADD
+    popularity: v.number(),     // ✅ ADD
     tags: v.array(v.string()),
     readme: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    popularity: v.number(),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("skills")
-      .withIndex("by_repo", q => q.eq("repoUrl", args.repoUrl))
+      .withIndex("by_name", q => q.eq("name", args.name))
       .first();
 
     if (existing) {
-      // 🔑 Incremental guard
-      if (existing.updatedAt >= args.updatedAt) return;
-      await ctx.db.patch(existing._id, {
-        ...args,
-        indexedAt: Date.now(),
-      });
+      await ctx.db.patch(existing._id, args);
     } else {
-      await ctx.db.insert("skills", {
-        ...args,
-        indexedAt: Date.now(),
-      });
+      await ctx.db.insert("skills", args);
     }
   },
 });
