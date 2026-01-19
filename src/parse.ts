@@ -3,15 +3,40 @@ import yaml from "js-yaml";
 export function parseSkillMarkdown(md: string) {
   if (!md.startsWith("---")) return null;
 
-  const [, rawYaml, ...rest] = md.split("---");
-  const meta = yaml.load(rawYaml) as any;
+  let meta: any;
+  let body = "";
 
-  if (!meta?.name || !meta?.description) return null;
+  try {
+    const parts = md.split("---");
+    if (parts.length < 3) return null;
+
+    meta = yaml.load(parts[1]);
+    body = parts.slice(2).join("---").trim();
+  } catch {
+    // ❌ Invalid YAML → skip
+    return null;
+  }
+
+  if (
+    !meta ||
+    typeof meta.name !== "string" ||
+    typeof meta.description !== "string"
+  ) {
+    return null;
+  }
+
+  // ❌ Skip template / placeholder skills
+  if (
+    meta.name.includes("[") ||
+    meta.description.includes("[")
+  ) {
+    return null;
+  }
 
   return {
-    name: meta.name,
-    description: meta.description,
-    body: rest.join("---").trim(),
+    name: meta.name.trim(),
+    description: meta.description.trim(),
+    body,
     tags: extractTags(meta, md),
   };
 }
