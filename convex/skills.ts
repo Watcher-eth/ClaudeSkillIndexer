@@ -38,3 +38,13 @@ export const upsert = mutation({
     }
   },
 });
+
+export const getByRepo = query({
+  args: { repoUrl: v.string() },
+  handler: async (ctx, { repoUrl }) => {
+    return ctx.db
+      .query("skills")
+      .withIndex("by_repo", q => q.eq("repoUrl", repoUrl))
+      .first();
+  },
+});
